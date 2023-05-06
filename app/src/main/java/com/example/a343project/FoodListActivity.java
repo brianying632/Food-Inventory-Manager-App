@@ -119,69 +119,6 @@ public class FoodListActivity extends AppCompatActivity {
     }
 
     public void saveData(boolean online){
-//        if(online){
-//            localStorageHelper.writeToFile(FoodListActivity.this, userData);
-//            requestSignIn();
-//        } else{
-//            localStorageHelper.writeToFile(FoodListActivity.this, userData);
-//        }
         localStorageHelper.writeToFile(FoodListActivity.this, userData);
     }
-
-//    private void requestSignIn() {
-//        GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-//                .requestEmail()
-//                .requestScopes(new Scope(DriveScopes.DRIVE_FILE))
-//                .build();
-//        GoogleSignInClient client = GoogleSignIn.getClient(this, signInOptions);
-//        System.out.println("REQUESTING SIGN IN");
-//        startActivityForResult(client.getSignInIntent(), DRIVE_REQUEST_CODE);
-//    }
-//
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//        switch (requestCode) {
-//            case 400:
-//                if (resultCode == RESULT_OK) {
-//                    handleSignInIntent(data, FoodListActivity.this);
-//                    System.out.println("ON ACTIVITY RESULT");
-//                } else {
-//                    System.out.println("RESULT IS NOT OK ");
-//                }
-//                break;
-//        }
-//    }
-//
-//    public void handleSignInIntent(Intent data, Context context) {
-//        GoogleSignIn.getSignedInAccountFromIntent(data)
-//                .addOnSuccessListener(new OnSuccessListener<GoogleSignInAccount>() {
-//                    @Override
-//                    public void onSuccess(GoogleSignInAccount googleSignInAccount) {
-//                        GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(
-//                                context,
-//                                Collections.singleton(DriveScopes.DRIVE_FILE)
-//                        );
-//
-//                        credential.setSelectedAccount(googleSignInAccount.getAccount());
-//
-//                        Drive googleDriveService = new Drive.Builder(
-//                                new NetHttpTransport(),
-//                                new GsonFactory(),
-//                                credential).setApplicationName("My Drive").build();
-//
-//                        driveHelper = new DriveHelper(googleDriveService);
-//                        System.out.println("LOGIN SUCCESSFUL");
-//                        //todo DRIVE EDITING GOES HERE AFTER SUCCESSFUL LOGIN
-//                        driveHelper.uploadFile(FoodListActivity.this);
-//                        //driveHelper.downloadFile(FoodListActivity.this);
-//                    }
-//                })
-//                .addOnFailureListener(new OnFailureListener() {
-//                    @Override
-//                    public void onFailure(@NonNull Exception e) {
-//                        System.out.println("LOGIN FAILED");
-//                    }
-//                });
-//    }
 }
