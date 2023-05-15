@@ -8,10 +8,12 @@
 
     <ImageButton
         android:id="@+id/imageButton5"
-        android:layout_width="175dp"
-        android:layout_height="170dp"
+        android:layout_width="258dp"
+        android:layout_height="262dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@android:drawable/ic_menu_add" />
