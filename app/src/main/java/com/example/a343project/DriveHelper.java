@@ -1,62 +1,35 @@
 package com.example.a343project;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
-import android.view.View;
-import android.view.contentcapture.ContentCaptureCondition;
-import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.FileContent;
-import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpRequestInitializer;
-import com.google.api.client.http.HttpResponse;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.LowLevelHttpRequest;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.FileList;
-import com.google.auth.http.HttpCredentialsAdapter;
-import com.google.auth.oauth2.GoogleCredentials;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Scanner;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-
-import javax.annotation.Nullable;
 
 public class DriveHelper {
     private final Executor executor = Executors.newSingleThreadExecutor();
     private Drive drive;
-    //LocalStorageHelper localStorageHelper = new LocalStorageHelper();
+    LocalStorageHelper localStorageHelper = new LocalStorageHelper();
 
     DriveHelper(){}
     DriveHelper(Drive drive){
@@ -79,7 +52,6 @@ public class DriveHelper {
             @Override
             public void onFailure(@NonNull Exception e) {
                 progressDialog.dismiss();
-                //Toast.makeText(context.getApplicationContext(), "Check Drive API key", Toast.LENGTH_LONG).show();
                 //System.out.println("Check Drive API key");
             }
         });
@@ -128,7 +100,6 @@ public class DriveHelper {
         progressDialog.setMessage("Please wait...");
         progressDialog.show();
 
-        String filepath = "/data/user/0/com.example.a343project/files/TestFile.txt";
         downloadDriveFile(context).addOnSuccessListener(new OnSuccessListener<String>() {
             @Override
             public void onSuccess(String s) {
@@ -138,7 +109,6 @@ public class DriveHelper {
             @Override
             public void onFailure(@NonNull Exception e) {
                 progressDialog.dismiss();
-                //Toast.makeText(context.getApplicationContext(), "Check Drive API key", Toast.LENGTH_LONG).show();
                 //System.out.println("Check Drive API key");
             }
         });
@@ -170,7 +140,9 @@ public class DriveHelper {
 
             //todo might be a loop btw
             if(fileMetaData == null){
-                System.out.println("SAVE FILE NOT FOUND ON DRIVE");
+                localStorageHelper.writeToFile(context, new UserData("Guest"));
+                uploadFile(context);
+                System.out.println("SAVE FILE NOT FOUND ON DRIVE, CREATING NEW SAVE DRIVE SAVE FILE");
                 return null;
             }
 
@@ -185,23 +157,33 @@ public class DriveHelper {
                 System.out.println("Unable to move file: " + e.getDetails());
             }
 
-            //System.out.println("Data retrieved: "+outputStream);
+            System.out.println("Data retrieved: "+ outputStream);
 
             //Convert ByteArrayOutputStream to File and save
             ByteArrayOutputStream byteOutStream = (ByteArrayOutputStream) outputStream;
-            String fileName = "TestFile.txt";
-            File path = context.getApplicationContext().getFilesDir();
+            ByteArrayInputStream byteInStream = new ByteArrayInputStream(byteOutStream.toByteArray());
+            ObjectInputStream inputStream = new ObjectInputStream(byteInStream);
+            UserData newUserData = (UserData) inputStream.readObject();
+            localStorageHelper.writeToFile(context, newUserData);
+
+//            String fileName = "TestFile.txt";
+//            File path = context.getApplicationContext().getFilesDir();
+//            System.out.println("LOCAL PATH:" + path.toString());
+
             //String path = "/data/user/0/com.example.a343project/files/TestFile.txt";
-            try {
-                outputStream = new FileOutputStream(new File(path, fileName));
-                // writing bytes in to byte output stream
-                byteOutStream.writeTo(outputStream);
-                System.out.println("WROTE FROM DRIVE TO LOCAL FILE");
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                outputStream.close();
-            }
+//            try {
+//                outputStream = new FileOutputStream(new File(path, fileName));
+//                // writing bytes in to byte output stream
+//                byteOutStream.writeTo(outputStream);
+//                System.out.println("WROTE FROM DRIVE TO LOCAL FILE");
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+
+            outputStream.close();
+            byteOutStream.close();
+            inputStream.close();
+            byteInStream.close();
 
             return fileMetaData.getId();
         });

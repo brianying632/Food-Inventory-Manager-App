@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -101,7 +103,12 @@ public class StorageListActivity extends AppCompatActivity {
         signOutButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
-                requestSignIn(SIGN_OUT_REQUEST_CODE);
+                if(userData.isOnline()){
+                    requestSignIn(SIGN_OUT_REQUEST_CODE);
+                } else{
+                    Intent intent = new Intent(StorageListActivity.this, MainActivity.class);
+                    startActivity(intent);
+                }
             }
         });
 
@@ -149,7 +156,9 @@ public class StorageListActivity extends AppCompatActivity {
             case SIGN_OUT_REQUEST_CODE:
                 if(resultCode == RESULT_OK){
                     client.signOut();
+                    boolean signOutFlag = true;
                     Intent intent = new Intent(StorageListActivity.this, MainActivity.class);
+                    intent.putExtra("Client", signOutFlag);
                     startActivity(intent);
                 }
                 break;

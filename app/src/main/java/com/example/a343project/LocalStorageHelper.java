@@ -25,7 +25,6 @@ public class LocalStorageHelper {
             objWriter.writeObject(userData);
             writer.close();
             objWriter.close();
-            //Toast.makeText(context.getApplicationContext(), "Wrote to File" + fileName, Toast.LENGTH_SHORT).show();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {

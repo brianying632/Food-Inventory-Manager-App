@@ -68,6 +68,8 @@ public class MainActivity extends AppCompatActivity {
     //FirebaseDatabase
 
     private final int DRIVE_REQUEST_CODE = 400;
+    private final int SIGN_OUT_REQUEST_CODE = 401;
+    GoogleSignInClient client;
     DriveHelper driveHelper;
     LocalStorageHelper localStorageHelper = new LocalStorageHelper();
 
@@ -75,6 +77,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+//        Intent intent = getIntent();
+//        if(intent.hasExtra("Client")){
+//            requestSignIn(SIGN_OUT_REQUEST_CODE);
+//        }
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
@@ -107,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //downloads file from google drive onto app data and reads it
-                requestSignIn();
+                requestSignIn(DRIVE_REQUEST_CODE);
 //                userData = localStorageHelper.readFromFile(MainActivity.this);
 //                userData.setOnline(true);
 //                Intent intent = new Intent(MainActivity.this, StorageListActivity.class);
@@ -120,6 +126,8 @@ public class MainActivity extends AppCompatActivity {
 //                requestSignIn();
             }
         });
+
+
     }
 
     public void createTestingData() {
@@ -134,26 +142,31 @@ public class MainActivity extends AppCompatActivity {
         userData.getStorageList().get(2).addFoodItem(new FoodItem("bread", "1 loaf", new Date("5/2/2023"), new Date("3/2/2023")));
     }
 
-    private void requestSignIn() {
+    private void requestSignIn(int requestCode) {
         GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .requestScopes(new Scope(DriveScopes.DRIVE_FILE))
                 .build();
-        GoogleSignInClient client = GoogleSignIn.getClient(this, signInOptions);
+        client = GoogleSignIn.getClient(this, signInOptions);
         //System.out.println("REQUESTING SIGN IN");
-        startActivityForResult(client.getSignInIntent(), DRIVE_REQUEST_CODE);
+        startActivityForResult(client.getSignInIntent(), requestCode);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case 400:
+            case DRIVE_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
                     handleSignInIntent(data, MainActivity.this);
-                    //System.out.println("ON ACTIVITY RESULT");
+                    System.out.println("ON ACTIVITY RESULT");
                 } else {
-                    //System.out.println("RESULT IS NOT OK ");
+                    System.out.println("RESULT IS NOT OK ");
+                }
+                break;
+            case SIGN_OUT_REQUEST_CODE:
+                if(resultCode == RESULT_OK){
+                    client.signOut();
                 }
                 break;
         }
@@ -177,16 +190,12 @@ public class MainActivity extends AppCompatActivity {
                                 credential).setApplicationName("My Drive").build();
 
                         driveHelper = new DriveHelper(googleDriveService);
-                        //System.out.println("LOGIN SUCCESSFUL");
+                        System.out.println("LOGIN SUCCESSFUL");
 
                         //todo DRIVE EDITING GOES HERE AFTER SUCCESSFUL LOGIN
                         //driveHelper.uploadFile(MainActivity.this);
-                        driveHelper.downloadFile(MainActivity.this); //download file to local storage
-                        userData = localStorageHelper.readFromFile(MainActivity.this); //read from local storage
-                        userData.setOnline(true);
-                        Intent intent = new Intent(MainActivity.this, StorageListActivity.class);
-                        intent.putExtra("userData", userData);
-                        MainActivity.this.startActivity(intent);
+                        //driveHelper.downloadFile(MainActivity.this); //download file to local storage
+                        downloadFile(MainActivity.this); //download file to local storage
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -195,5 +204,29 @@ public class MainActivity extends AppCompatActivity {
                         System.out.println("LOGIN FAILED");
                     }
                 });
+    }
+
+    private void downloadFile(Context context) {
+        ProgressDialog progressDialog = new ProgressDialog(context);
+        progressDialog.setTitle("Downloading from Google Drive");
+        progressDialog.setMessage("Please wait...");
+        progressDialog.show();
+
+        driveHelper.downloadDriveFile(context).addOnSuccessListener(new OnSuccessListener<String>() {
+            @Override
+            public void onSuccess(String s) {
+                progressDialog.dismiss();
+                userData = localStorageHelper.readFromFile(MainActivity.this); //read from local storage
+                userData.setOnline(true);
+                Intent intent = new Intent(MainActivity.this, StorageListActivity.class);
+                intent.putExtra("userData", userData);
+                MainActivity.this.startActivity(intent);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                progressDialog.dismiss();
+            }
+        });
     }
 }
