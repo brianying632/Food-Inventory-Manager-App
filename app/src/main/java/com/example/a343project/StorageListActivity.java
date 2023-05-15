@@ -21,8 +21,10 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
@@ -38,13 +40,15 @@ import javax.annotation.Nullable;
 public class StorageListActivity extends AppCompatActivity {
 
     ListView listView;
-    Button addButton, saveButton;
+    Button addButton, saveButton, signOutButton;
     EditText editText;
 
     UserData userData;
     ArrayList<String> stringStorageList;
 
     private final int DRIVE_REQUEST_CODE = 400;
+    private final int SIGN_OUT_REQUEST_CODE = 401;
+    GoogleSignInClient client;
     DriveHelper driveHelper;
     LocalStorageHelper localStorageHelper = new LocalStorageHelper();
 
@@ -93,6 +97,14 @@ public class StorageListActivity extends AppCompatActivity {
             }
         });
 
+        signOutButton = (Button) findViewById(R.id.button6);
+        signOutButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                requestSignIn(SIGN_OUT_REQUEST_CODE);
+            }
+        });
+
         updateStringStorageList();
     }
 
@@ -105,33 +117,40 @@ public class StorageListActivity extends AppCompatActivity {
     public void saveData(boolean online){
         if(online){
             localStorageHelper.writeToFile(StorageListActivity.this, userData);
-            requestSignIn();
+            requestSignIn(DRIVE_REQUEST_CODE);
         } else{
             localStorageHelper.writeToFile(StorageListActivity.this, userData);
             Toast.makeText(StorageListActivity.this, "Currently in Guest Mode", Toast.LENGTH_LONG).show();
         }
     }
 
-    private void requestSignIn() {
+    private void requestSignIn(int requestCode) {
         GoogleSignInOptions signInOptions = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .requestScopes(new Scope(DriveScopes.DRIVE_FILE))
                 .build();
-        GoogleSignInClient client = GoogleSignIn.getClient(this, signInOptions);
-        System.out.println("REQUESTING SIGN IN");
-        startActivityForResult(client.getSignInIntent(), DRIVE_REQUEST_CODE);
+        client = GoogleSignIn.getClient(this, signInOptions);
+        //System.out.println("REQUESTING SIGN IN");
+        startActivityForResult(client.getSignInIntent(), requestCode);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case 400:
+            case DRIVE_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
                     handleSignInIntent(data, StorageListActivity.this);
-                    System.out.println("ON ACTIVITY RESULT");
+                    //System.out.println("ON ACTIVITY RESULT");
                 } else {
-                    System.out.println("RESULT IS NOT OK ");
+                    //System.out.println("RESULT IS NOT OK ");
+                }
+                break;
+            case SIGN_OUT_REQUEST_CODE:
+                if(resultCode == RESULT_OK){
+                    client.signOut();
+                    Intent intent = new Intent(StorageListActivity.this, MainActivity.class);
+                    startActivity(intent);
                 }
                 break;
         }
@@ -155,7 +174,7 @@ public class StorageListActivity extends AppCompatActivity {
                                 credential).setApplicationName("My Drive").build();
 
                         driveHelper = new DriveHelper(googleDriveService);
-                        System.out.println("LOGIN SUCCESSFUL");
+                        //System.out.println("LOGIN SUCCESSFUL");
                         //todo DRIVE EDITING GOES HERE AFTER SUCCESSFUL LOGIN
                         driveHelper.uploadFile(StorageListActivity.this);
                         //driveHelper.downloadFile(StorageListActivity.this);
@@ -164,7 +183,8 @@ public class StorageListActivity extends AppCompatActivity {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        System.out.println("LOGIN FAILED");
+                        //System.out.println("LOGIN FAILED");
+                        e.printStackTrace();
                     }
                 });
     }

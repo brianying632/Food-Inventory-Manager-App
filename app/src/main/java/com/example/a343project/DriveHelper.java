@@ -54,11 +54,9 @@ import java.util.concurrent.Executors;
 import javax.annotation.Nullable;
 
 public class DriveHelper {
-
-    private final int DRIVE_REQUEST_CODE = 400;
     private final Executor executor = Executors.newSingleThreadExecutor();
     private Drive drive;
-    LocalStorageHelper localStorageHelper = new LocalStorageHelper();
+    //LocalStorageHelper localStorageHelper = new LocalStorageHelper();
 
     DriveHelper(){}
     DriveHelper(Drive drive){
@@ -81,7 +79,8 @@ public class DriveHelper {
             @Override
             public void onFailure(@NonNull Exception e) {
                 progressDialog.dismiss();
-                Toast.makeText(context.getApplicationContext(), "Check Drive API key", Toast.LENGTH_LONG).show();
+                //Toast.makeText(context.getApplicationContext(), "Check Drive API key", Toast.LENGTH_LONG).show();
+                //System.out.println("Check Drive API key");
             }
         });
     }
@@ -139,7 +138,8 @@ public class DriveHelper {
             @Override
             public void onFailure(@NonNull Exception e) {
                 progressDialog.dismiss();
-                Toast.makeText(context.getApplicationContext(), "Check Drive API key", Toast.LENGTH_LONG).show();
+                //Toast.makeText(context.getApplicationContext(), "Check Drive API key", Toast.LENGTH_LONG).show();
+                //System.out.println("Check Drive API key");
             }
         });
     }
@@ -155,7 +155,7 @@ public class DriveHelper {
                 do {
                     FileList result = drive.files().list().setQ("mimeType='text/plain'").execute();
                     for (com.google.api.services.drive.model.File f : result.getFiles()) {
-                        System.out.printf("Found file: %s (%s)\n", f.getName(), f.getId());
+                        //System.out.printf("Found file: %s (%s)\n", f.getName(), f.getId());
                         if(f.getName().equals("FIM_APP_DATA")){
                             fileMetaData = f;
                         }

@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
                 .requestScopes(new Scope(DriveScopes.DRIVE_FILE))
                 .build();
         GoogleSignInClient client = GoogleSignIn.getClient(this, signInOptions);
-        System.out.println("REQUESTING SIGN IN");
+        //System.out.println("REQUESTING SIGN IN");
         startActivityForResult(client.getSignInIntent(), DRIVE_REQUEST_CODE);
     }
 
@@ -151,9 +151,9 @@ public class MainActivity extends AppCompatActivity {
             case 400:
                 if (resultCode == RESULT_OK) {
                     handleSignInIntent(data, MainActivity.this);
-                    System.out.println("ON ACTIVITY RESULT");
+                    //System.out.println("ON ACTIVITY RESULT");
                 } else {
-                    System.out.println("RESULT IS NOT OK ");
+                    //System.out.println("RESULT IS NOT OK ");
                 }
                 break;
         }
@@ -177,7 +177,8 @@ public class MainActivity extends AppCompatActivity {
                                 credential).setApplicationName("My Drive").build();
 
                         driveHelper = new DriveHelper(googleDriveService);
-                        System.out.println("LOGIN SUCCESSFUL");
+                        //System.out.println("LOGIN SUCCESSFUL");
+
                         //todo DRIVE EDITING GOES HERE AFTER SUCCESSFUL LOGIN
                         //driveHelper.uploadFile(MainActivity.this);
                         driveHelper.downloadFile(MainActivity.this); //download file to local storage
