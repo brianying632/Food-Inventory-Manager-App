@@ -64,9 +64,6 @@ public class MainActivity extends AppCompatActivity {
 
     UserData userData;
 
-    //String userToken;
-    //FirebaseDatabase
-
     private final int DRIVE_REQUEST_CODE = 400;
     private final int SIGN_OUT_REQUEST_CODE = 401;
     GoogleSignInClient client;
@@ -77,10 +74,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        Intent intent = getIntent();
-//        if(intent.hasExtra("Client")){
-//            requestSignIn(SIGN_OUT_REQUEST_CODE);
-//        }
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
@@ -114,11 +107,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 //downloads file from google drive onto app data and reads it
                 requestSignIn(DRIVE_REQUEST_CODE);
-//                userData = localStorageHelper.readFromFile(MainActivity.this);
-//                userData.setOnline(true);
-//                Intent intent = new Intent(MainActivity.this, StorageListActivity.class);
-//                intent.putExtra("userData", userData);
-//                MainActivity.this.startActivity(intent);
 
                 //create Test data to preload
 //                createTestingData();
